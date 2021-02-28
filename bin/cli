@@ -1,0 +1,50 @@
+#!/usr/bin/env node
+
+const ora = require('ora');
+const meow = require('meow');
+const font = require('..').default;
+
+const cli = meow(`
+Usage:
+  font <font-url>
+
+Options:
+  --help, -h     show help
+  --version, -v  versions
+
+Examples:
+  font //at.alicdn.com/t/font_8888_xxxxx.js
+`, {
+  flags: {
+    help: {
+      type: 'boolean',
+      alias: 'h',
+    },
+    version: {
+      type: 'boolean',
+      alias: 'v',
+    },
+  },
+});
+
+if (cli.flags.v) {
+  cli.showVersion();
+  process.exit();
+}
+
+if (cli.flags.h || !cli.input[0]) {
+  cli.showHelp();
+  process.exit();
+}
+
+const spinner = ora('processing...').start();
+
+font(cli.input[0])
+  .then(() => {
+    spinner.succeed('done!');
+  })
+  .catch((err) => {
+    // eslint-disable-next-line no-console
+    console.error(err);
+    spinner.fail('fail!');
+  });
