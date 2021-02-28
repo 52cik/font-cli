@@ -2,7 +2,7 @@
 
 const ora = require('ora');
 const meow = require('meow');
-const font = require('..').default;
+const generator = require('..').default;
 
 const cli = meow(`
 Usage:
@@ -39,7 +39,7 @@ if (cli.flags.h || !cli.input[0]) {
 
 const spinner = ora('processing...').start();
 
-font(cli.input[0])
+generator(cli.input[0])
   .then(() => {
     spinner.succeed('done!');
   })
