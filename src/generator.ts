@@ -30,7 +30,7 @@ async function generator(options: GeneratorOptions) {
 
   const IconFontPath = (name: string) => resolve(process.cwd(), out, name);
   const fontUrl = url.replace(/^(?=\/\/)/, 'https:');
-  let { body } = await got(fontUrl, { timeout: 6000 });
+  let { body } = await got(fontUrl, { timeout: 10 * 1000 });
 
   if (prune || prune === '') {
     const [prefix, newPrefix] = (prune || 'icon-').split('=');
