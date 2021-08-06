@@ -15,6 +15,7 @@ module.exports = {
     '@typescript-eslint',
   ],
   rules: {
+    'max-len': 'off',
     'no-console': 'off',
     'global-require': 'off',
     'import/extensions': 'off',

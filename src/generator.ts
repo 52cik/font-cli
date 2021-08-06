@@ -2,10 +2,11 @@ import fs from 'fs';
 import { resolve } from 'path';
 import mkdirp from 'mkdirp';
 import got from 'got';
-import tplFont from './tpl-font';
-import tplIndex from './tpl-index';
-import tplTypes from './tpl-types';
-import tplPreview from './tpl-preview';
+import tplFont from './template/font';
+import tplIndex from './template/index';
+import tplTypes from './template/types';
+import tplPreview from './template/preview';
+import transformSingleton from './singleton';
 
 interface GeneratorOptions {
   url: string;
@@ -13,6 +14,7 @@ interface GeneratorOptions {
   type: boolean;
   preview: boolean;
   prune: string;
+  singleton: boolean;
 }
 
 async function generator(options: GeneratorOptions) {
@@ -22,6 +24,7 @@ async function generator(options: GeneratorOptions) {
     type,
     preview,
     prune,
+    singleton,
   } = options;
 
   if (!/font_\w+_\w+\.js\b/.test(url)) {
@@ -43,26 +46,31 @@ async function generator(options: GeneratorOptions) {
     mkdirp.sync(IconFontPath('.'));
   }
 
-  fs.writeFileSync(IconFontPath('font.js'), tplFont(body, url), 'utf8');
+  const writeFile = (name: string, data: string) => fs.writeFileSync(IconFontPath(name), data, 'utf8');
+
+  if (singleton) {
+    body = transformSingleton(body, url);
+  }
+
+  writeFile('font.js', tplFont(body, url));
 
   // 只生成类型
   if (type) {
-    fs.writeFileSync(IconFontPath('IconFontTypes.ts'), tplTypes(iconNames), 'utf8');
+    writeFile('IconFontTypes.ts', tplTypes(iconNames));
   }
 
   // 只生成预览
   if (preview) {
-    fs.writeFileSync(IconFontPath('preview.html'), tplPreview(), 'utf8');
+    writeFile('preview.html', tplPreview());
   }
 
   if (type || preview) {
     return true;
   }
 
-  // fs.writeFileSync(IconFontPath('font.js'), tplFont(body, url), 'utf8');
-  fs.writeFileSync(IconFontPath('index.ts'), tplIndex(), 'utf8');
-  fs.writeFileSync(IconFontPath('IconFontTypes.ts'), tplTypes(iconNames), 'utf8');
-  fs.writeFileSync(IconFontPath('preview.html'), tplPreview(), 'utf8');
+  writeFile('index.ts', tplIndex());
+  writeFile('IconFontTypes.ts', tplTypes(iconNames));
+  writeFile('preview.html', tplPreview());
 
   return true;
 }

@@ -10,8 +10,6 @@ const example = `
   font //at.alicdn.com/t/font_2404456_tifhzvgpsp.js
   # 生成组件到 src/components/MyIcon 目录
   font //at.alicdn.com/t/font_2404456_tifhzvgpsp.js -o src/components/MyIcon
-  # 生成ts声明和预览文件到 IconFont 目录
-  font -t -p //at.alicdn.com/t/font_2404456_tifhzvgpsp.js
   # 生成组件到 IconFont 目录，并去除图标名 icon- 前缀
   font --prune //at.alicdn.com/t/font_2404456_tifhzvgpsp.js
   # 生成组件到 IconFont 目录，并替换图标名 icon- 前缀为 myicon-
@@ -31,14 +29,15 @@ const cli = meow(`
   font [参数] [url]
 
 参数:
-  -t, --type     只生成类型
-  -p, --preview  只生成预览文件
-  -o, --out      自定义生成路径 [默认: IconFont]
-  -c, --config   自定配置文件 [默认: font.config.json]
-      --init     生成配置文件
-      --prune    修剪图标名前缀
-  -h, --help     显示帮助
-  -v, --version  显示版本
+  -t, --type      只生成类型
+  -p, --preview   只生成预览文件
+  -o, --out       自定义生成路径 [默认: IconFont]
+  -c, --config    自定配置文件 [默认: font.config.json]
+      --init      生成配置文件
+      --prune     修剪图标名前缀
+  -s, --singleton 单例模式，多次多版本加载，只会保留最新一份
+  -h, --help      显示帮助
+  -v, --version   显示版本
 
 例子: ${example}
 `, {
@@ -49,6 +48,7 @@ const cli = meow(`
     config: { alias: 'c', type: 'string' },
     init: { type: 'string' },
     prune: { type: 'string' },
+    singleton: { alias: 's', type: 'boolean' },
     help: { alias: 'h', type: 'boolean' },
     debug: { alias: 'd', type: 'boolean' },
     version: { alias: 'v', type: 'boolean' },
@@ -69,6 +69,7 @@ if (cli.flags.init !== undefined) {
   const cfg = [{
     url: '//at.alicdn.com/t/font_2404456_tifhzvgpsp.js',
     out: 'src/components/IconFont',
+    singleton: true,
   }];
   fs.writeFileSync(cfgPath, JSON.stringify(cfg, null, 2), 'utf8');
   process.exit();
@@ -104,6 +105,7 @@ if (hasConfig && cli.input.length === 0) {
     type: it.type || cli.flags.preview,
     preview: it.preview || cli.flags.preview,
     prune: it.prune || cli.flags.prune,
+    singleton: it.singleton || cli.flags.singleton,
   }));
 } else {
   // 通过命令行参数生成
@@ -113,6 +115,7 @@ if (hasConfig && cli.input.length === 0) {
     type: cli.flags.type,
     preview: cli.flags.preview,
     prune: cli.flags.prune,
+    singleton: cli.flags.singleton,
   }];
 }
 
