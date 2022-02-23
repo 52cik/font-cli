@@ -33,11 +33,14 @@ async function generator(options: GeneratorOptions) {
 
   const IconFontPath = (name: string) => resolve(process.cwd(), out, name);
   const fontUrl = url.replace(/^(?=\/\/)/, 'https:');
-  let { body } = await got(fontUrl, { timeout: 10 * 1000 });
+  const { body, headers } = await got(fontUrl, { timeout: 10 * 1000 });
+  const lastModified = headers['last-modified'] || Date.now(); // 字体修改时间
+  let fontCode = body;
 
+  // 替换图标前缀
   if (prune || prune === '') {
     const [prefix, newPrefix] = (prune || 'icon-').split('=');
-    body = body.replace(RegExp(`id="${prefix}`, 'g'), `id="${newPrefix || ''}`);
+    fontCode = body.replace(RegExp(`id="${prefix}`, 'g'), `id="${newPrefix || ''}`);
   }
 
   const iconNames: string[] = body.match(/[^"]+(?=" viewBox)/g) || [];
@@ -48,11 +51,12 @@ async function generator(options: GeneratorOptions) {
 
   const writeFile = (name: string, data: string) => fs.writeFileSync(IconFontPath(name), data, 'utf8');
 
+  // 单例模式处理
   if (singleton) {
-    body = transformSingleton(body, url);
+    fontCode = transformSingleton(fontCode, url, lastModified);
   }
 
-  writeFile('font.js', tplFont(body, url));
+  writeFile('font.js', tplFont(fontCode, url, lastModified));
 
   // 只生成类型
   if (type) {

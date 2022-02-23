@@ -73,14 +73,14 @@ const replaceNode = (path: NodePath<types.Identifier>, code: string) => {
  * 转单例
  * @param code 代码
  * @param url 地址
- * @param version 版本
+ * @param date 字体创建日期
  */
-const transformSingleton = (code: string, url: string) => {
+const transformSingleton = (code: string, url: string, date: string | number) => {
   const res = [
     /!function\(\w+\)\{/,
     /\(window\)/,
     /\w+.setAttribute\("aria-hidden","true"\)/,
-    /document.createElement\("div"\)\).innerHTML/,
+    /document.createElement\("div"\)/,
     /\w+.appendChild\(\w+\)/,
   ];
 
@@ -89,7 +89,7 @@ const transformSingleton = (code: string, url: string) => {
   }
 
   const id = (url.match(/font_([^_]+)/) || [])[1];
-  const version = `${Date.now()}`;
+  const version = `${Math.floor(new Date(date).getTime() / 1000)}`;
   const ast = parse(code);
 
   if (!id) {

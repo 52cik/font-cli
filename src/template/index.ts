@@ -9,7 +9,7 @@ export interface IconFontProps extends IconProps {
   type?: IconFontTypes;
 }
 
-export { IconFontTypes };
+// export type { IconFontTypes };
 
 export const IconFont = Icon.createFromIconfontCN() as FC<IconFontProps>;
 
