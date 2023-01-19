@@ -77,7 +77,7 @@ const replaceNode = (path: NodePath<types.Identifier>, code: string) => {
  */
 const transformSingleton = (code: string, url: string, date: string | number) => {
   const res = [
-    /!function\(\w+\)\{/,
+    // /!function\(\w+\)\{/,
     /\(window\)/,
     /\w+.setAttribute\("aria-hidden","true"\)/,
     /document.createElement\("div"\)/,

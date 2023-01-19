@@ -3,7 +3,7 @@
 ```sh
 npx font-cli -h
 
-  iconfont React 组件生成工具
+  IconFont React 组件生成工具
 
   使用:
     font [参数] [url]
@@ -20,14 +20,14 @@ npx font-cli -h
     -v, --version   显示版本
 
   例子: 
-    # 生成组件到 IconFont 目录
-    font //at.alicdn.com/t/font_2404456_tifhzvgpsp.js
+    # 单例模式，生成组件到 IconFont 目录
+    font -s //at.alicdn.com/t/font_2404456_tifhzvgpsp.js
     # 生成组件到 src/components/MyIcon 目录
     font //at.alicdn.com/t/font_2404456_tifhzvgpsp.js -o src/components/MyIcon
     # 生成组件到 IconFont 目录，并去除图标名 icon- 前缀
     font --prune //at.alicdn.com/t/font_2404456_tifhzvgpsp.js
     # 生成组件到 IconFont 目录，并替换图标名 icon- 前缀为 myicon-
-    font --prune icon-=myicon- //at.alicdn.com/t/font_2404456_tifhzvgpsp.js
+    font --prune icon-=myicon- //at.alicdn.com/t/font_2404456_tifhzvgpsp.js   
     # 生成 font.config.json 配置到当前目录
     font --init
     # 生成 myconfig.json 配置到当前目录

@@ -5,26 +5,7 @@ import chalk from 'chalk';
 import meow from 'meow';
 import generator from './generator';
 
-const example = `
-  # 生成组件到 IconFont 目录
-  font //at.alicdn.com/t/font_2404456_tifhzvgpsp.js
-  # 生成组件到 src/components/MyIcon 目录
-  font //at.alicdn.com/t/font_2404456_tifhzvgpsp.js -o src/components/MyIcon
-  # 生成组件到 IconFont 目录，并去除图标名 icon- 前缀
-  font --prune //at.alicdn.com/t/font_2404456_tifhzvgpsp.js
-  # 生成组件到 IconFont 目录，并替换图标名 icon- 前缀为 myicon-
-  font --prune icon-=myicon- //at.alicdn.com/t/font_2404456_tifhzvgpsp.js
-  # 生成 font.config.json 配置到当前目录
-  font --init
-  # 生成 myconfig.json 配置到当前目录
-  font --init myconfig.json
-  # 调用自定义配置
-  font -c myconfig.json
-  # 调用 font.config.json 配置，如果配置不存在则输出帮助信息
-  font
-`.replace(/#[^\r\n]+/g, (line) => chalk.green(line));
-
-const cli = meow(`
+const helpString = `
 使用:
   font [参数] [url]
 
@@ -39,8 +20,28 @@ const cli = meow(`
   -h, --help      显示帮助
   -v, --version   显示版本
 
-例子: ${example}
-`, {
+例子: 
+  # 单例模式，生成组件到 IconFont 目录
+  font -s //at.alicdn.com/t/font_2404456_tifhzvgpsp.js
+  # 生成组件到 src/components/MyIcon 目录
+  font //at.alicdn.com/t/font_2404456_tifhzvgpsp.js -o src/components/MyIcon
+  # 生成组件到 IconFont 目录，并去除图标名 icon- 前缀
+  font --prune //at.alicdn.com/t/font_2404456_tifhzvgpsp.js
+  # 生成组件到 IconFont 目录，并替换图标名 icon- 前缀为 myicon-
+  font --prune icon-=myicon- //at.alicdn.com/t/font_2404456_tifhzvgpsp.js
+  # 生成 font.config.json 配置到当前目录
+  font --init
+  # 生成 myconfig.json 配置到当前目录
+  font --init myconfig.json
+  # 调用自定义配置
+  font -c myconfig.json
+  # 调用 font.config.json 配置，如果配置不存在则输出帮助信息
+  font 
+`
+  .replace(/#[^\r\n]+/g, (str) => chalk.green(str))
+  .replace(/font /g, (str) => chalk.yellow(str));
+
+const cli = meow(helpString, {
   flags: {
     type: { alias: 't', type: 'boolean' },
     preview: { alias: 'p', type: 'boolean' },
@@ -56,7 +57,8 @@ const cli = meow(`
 });
 
 const defaultConfig = 'font.config.json';
-const getCfgPath = (file?: string) => resolve(process.cwd(), file || defaultConfig);
+const getCfgPath = (file?: string) =>
+  resolve(process.cwd(), file || defaultConfig);
 const hasConfig = fs.existsSync(getCfgPath(cli.flags.config));
 
 // 生成配置
@@ -66,11 +68,13 @@ if (cli.flags.init !== undefined) {
     console.log('配置已存在');
     process.exit();
   }
-  const cfg = [{
-    url: '//at.alicdn.com/t/font_2404456_tifhzvgpsp.js',
-    out: 'src/components/IconFont',
-    singleton: true,
-  }];
+  const cfg = [
+    {
+      url: '//at.alicdn.com/t/font_2404456_tifhzvgpsp.js',
+      out: 'src/components/IconFont',
+      singleton: true,
+    },
+  ];
   fs.writeFileSync(cfgPath, JSON.stringify(cfg, null, 2), 'utf8');
   process.exit();
 }
@@ -109,24 +113,28 @@ if (hasConfig && cli.input.length === 0) {
   }));
 } else {
   // 通过命令行参数生成
-  configs = [{
-    url: cli.input[0],
-    out: cli.flags.out || 'IconFont',
-    type: cli.flags.type,
-    preview: cli.flags.preview,
-    prune: cli.flags.prune,
-    singleton: cli.flags.singleton,
-  }];
+  configs = [
+    {
+      url: cli.input[0],
+      out: cli.flags.out || 'IconFont',
+      type: cli.flags.type,
+      preview: cli.flags.preview,
+      prune: cli.flags.prune,
+      singleton: cli.flags.singleton,
+    },
+  ];
 }
 
 const spinner = ora('生成中...').start();
-const tasks = configs.map((it) => generator(it).catch((err) => {
-  console.log(`\n  ${it.url} 生成失败！\n  ${err.message}`);
-  if (cli.flags.debug) {
-    console.error(err);
-  }
-  return err;
-}));
+const tasks = configs.map((it) =>
+  generator(it).catch((err) => {
+    console.log(`\n  ${it.url} 生成失败！\n  ${err.message}`);
+    if (cli.flags.debug) {
+      console.error(err);
+    }
+    return err;
+  }),
+);
 
 Promise.all(tasks).then((rets) => {
   const hasError = rets.filter((it) => it !== true).length;

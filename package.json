@@ -1,7 +1,7 @@
 {
   "name": "font-cli",
-  "version": "0.3.5",
-  "description": "iconfont React 组件生成工具",
+  "version": "0.3.6",
+  "description": "IconFont React 组件生成工具",
   "main": "lib/index.js",
   "bin": {
     "font": "bin/cli"
